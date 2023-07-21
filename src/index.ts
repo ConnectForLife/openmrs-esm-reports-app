@@ -47,3 +47,7 @@ export const root = getAsyncLifecycle(
   options
 );
 
+export const overview = getAsyncLifecycle(
+  () => import("./components/overview.component"),
+  options
+);

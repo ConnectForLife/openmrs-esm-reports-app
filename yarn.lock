@@ -5265,54 +5265,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-state@npm:^5.0.3-pre.846":
-  version: 5.0.3-pre.846
-  resolution: "@openmrs/esm-state@npm:5.0.3-pre.846"
-  dependencies:
-    zustand: ^4.3.6
-  checksum: 396d85fe53f81c3695848d72f04f2e39bd2a71997417653e86cfb6f679a1f1559821c6484bdde3f70b26873f615344edcd1eac1974650da8c39636cfcd9b64ca
-  languageName: node
-  linkType: hard
-
-"@openmrs/esm-styleguide@npm:5.0.3-pre.846, @openmrs/esm-styleguide@npm:^5.0.3-pre.846":
-  version: 5.0.3-pre.846
-  resolution: "@openmrs/esm-styleguide@npm:5.0.3-pre.846"
-  dependencies:
-    "@carbon/charts": ^1.6.3
-    "@carbon/react": ^1.12.0
-    d3: ^7.8.0
-    lodash-es: ^4.17.21
-  peerDependencies:
-    "@openmrs/esm-framework": 4.x
-    react: 18.x
-    react-dom: 18.x
-    rxjs: 6.x
-  checksum: 13c6ceeb1ced15bd2ca96be347d399a20a0e2a88de23f5670224a20f8b81e9afa8c86f28b14e6fbd8153917514a328d91a279b64cf006ca7b34af26fc41a419d
-  languageName: node
-  linkType: hard
-
-"@openmrs/esm-styleguide@npm:next":
-  version: 4.0.3-pre.441
-  resolution: "@openmrs/esm-styleguide@npm:4.0.3-pre.441"
-  dependencies:
-    "@carbon/charts": ^1.5.0
-    "@carbon/react": ^1.12.0
-    d3: ^7.6.1
-    lodash-es: ^4.17.21
-  peerDependencies:
-    "@openmrs/esm-extensions": 4.x
-    "@openmrs/esm-react-utils": 4.x
-    "@openmrs/esm-state": 4.x
-    react: 18.x
-    react-dom: 18.x
-    rxjs: 6.x
-  checksum: 7aa1911c16ffb4f0c576fb3286487fcd7b40fd98997f9d017ea6c98e44208e0f8ef3b4770ea6af77c3e9656dd05ebbf3dd83b70430c04591167501593eb2f02c
-  languageName: node
-  linkType: hard
-
-"@openmrs/esm-template-app@workspace:.":
+"@openmrs/esm-reports-app@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@openmrs/esm-template-app@workspace:."
+  resolution: "@openmrs/esm-reports-app@workspace:."
   dependencies:
     "@carbon/react": ^1.33.1
     "@openmrs/esm-framework": next
@@ -5368,6 +5323,51 @@ __metadata:
     rxjs: 6.x
   languageName: unknown
   linkType: soft
+
+"@openmrs/esm-state@npm:^5.0.3-pre.846":
+  version: 5.0.3-pre.846
+  resolution: "@openmrs/esm-state@npm:5.0.3-pre.846"
+  dependencies:
+    zustand: ^4.3.6
+  checksum: 396d85fe53f81c3695848d72f04f2e39bd2a71997417653e86cfb6f679a1f1559821c6484bdde3f70b26873f615344edcd1eac1974650da8c39636cfcd9b64ca
+  languageName: node
+  linkType: hard
+
+"@openmrs/esm-styleguide@npm:5.0.3-pre.846, @openmrs/esm-styleguide@npm:^5.0.3-pre.846":
+  version: 5.0.3-pre.846
+  resolution: "@openmrs/esm-styleguide@npm:5.0.3-pre.846"
+  dependencies:
+    "@carbon/charts": ^1.6.3
+    "@carbon/react": ^1.12.0
+    d3: ^7.8.0
+    lodash-es: ^4.17.21
+  peerDependencies:
+    "@openmrs/esm-framework": 4.x
+    react: 18.x
+    react-dom: 18.x
+    rxjs: 6.x
+  checksum: 13c6ceeb1ced15bd2ca96be347d399a20a0e2a88de23f5670224a20f8b81e9afa8c86f28b14e6fbd8153917514a328d91a279b64cf006ca7b34af26fc41a419d
+  languageName: node
+  linkType: hard
+
+"@openmrs/esm-styleguide@npm:next":
+  version: 4.0.3-pre.441
+  resolution: "@openmrs/esm-styleguide@npm:4.0.3-pre.441"
+  dependencies:
+    "@carbon/charts": ^1.5.0
+    "@carbon/react": ^1.12.0
+    d3: ^7.6.1
+    lodash-es: ^4.17.21
+  peerDependencies:
+    "@openmrs/esm-extensions": 4.x
+    "@openmrs/esm-react-utils": 4.x
+    "@openmrs/esm-state": 4.x
+    react: 18.x
+    react-dom: 18.x
+    rxjs: 6.x
+  checksum: 7aa1911c16ffb4f0c576fb3286487fcd7b40fd98997f9d017ea6c98e44208e0f8ef3b4770ea6af77c3e9656dd05ebbf3dd83b70430c04591167501593eb2f02c
+  languageName: node
+  linkType: hard
 
 "@openmrs/esm-utils@npm:^5.0.3-pre.846":
   version: 5.0.3-pre.846

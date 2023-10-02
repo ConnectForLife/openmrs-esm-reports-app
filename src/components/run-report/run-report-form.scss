@@ -1,0 +1,85 @@
+@use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/type';
+
+.desktopRunReport {
+  display: flex;
+  width: 520px;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 0 0;
+}
+
+.runReportInnerDivElement {
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.basicInputElement {
+  width: 300px;
+  height: 30px;
+  margin-bottom: 30px;
+}
+
+.outputFormatDiv {
+  margin-bottom: 50px;
+  display: flex;
+  padding: 32px 16px 16px 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.buttonsDiv {
+  margin-top: 50px;
+}
+
+.runningOrQueuedReportsDivTitle {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.parameterElement {
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+.datePicker {
+  text-align: left;
+}
+
+.cancelActionButton {
+  text-decoration: underline;
+  color: #525252;
+  padding-left: 0px;
+}
+
+.unknownParameterTypeSpan {
+  text-align: left;
+  color: red;
+}
+
+.tableHeader {
+  display: inline-block;
+}
+
+.tableIcon {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.reportButton {
+  max-width: none !important;
+  width: 350px !important;
+}
+
+.rowCellEven {
+  background-color: #FFFFFF !important;
+}
+
+.rowCellOdd {
+  background-color: #F4F4F4 !important;
+}

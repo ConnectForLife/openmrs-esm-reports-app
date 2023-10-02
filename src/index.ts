@@ -4,7 +4,7 @@
  * connects the app shell to the React application(s) that make up this
  * microfrontend.
  */
-import { getAsyncLifecycle, defineConfigSchema } from "@openmrs/esm-framework";
+import { getAsyncLifecycle, defineConfigSchema, registerBreadcrumbs } from "@openmrs/esm-framework";
 import { configSchema } from "./config-schema";
 
 const moduleName = "@openmrs/esm-reports-app";
@@ -34,6 +34,14 @@ export const importTranslation = require.context(
  */
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
+
+  registerBreadcrumbs([
+    {
+      title: 'Reports',
+      path: `${window.spaBase}/reports`,
+      parent: `${window.spaBase}/home`
+    }
+  ]);
 }
 
 /**
@@ -42,6 +50,7 @@ export function startupApp() {
  * will be `openmrsSpaBase() + 'root'`, which is usually
  * `/openmrs/spa/root`.
  */
+
 export const root = getAsyncLifecycle(
   () => import("./reports.component"),
   options
@@ -49,5 +58,15 @@ export const root = getAsyncLifecycle(
 
 export const overview = getAsyncLifecycle(
   () => import("./components/overview.component"),
+  options
+);
+
+export const runReport = getAsyncLifecycle(
+  () => import("./components/run-report/run-report-form.component"),
+  options
+)
+
+export const cancelReportModal = getAsyncLifecycle(
+  () => import('./components/run-report/cancel-report-modal.component'),
   options
 );

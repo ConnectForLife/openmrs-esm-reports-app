@@ -4,7 +4,6 @@
     "fhir2": "^1.2.0",
     "webservices.rest": "^2.24.0"
   },
-  "extensions": [],
   "pages": [
     {
       "component": "root",
@@ -13,6 +12,16 @@
     {
       "component": "overview",
       "route": "overview"
+    }
+  ],
+  "extensions": [
+    {
+      "name": "run-report",
+      "component": "runReport"
+    },
+    {
+      "name": "cancel-report-modal",
+      "component": "cancelReportModal"
     }
   ]
 }

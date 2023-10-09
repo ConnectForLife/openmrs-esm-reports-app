@@ -59,5 +59,8 @@
   "failed": "Failed",
   "preserveReport": "Preserve report",
   "reportPreservedSuccessfully": "Report preserved successfully",
-  "reportPreservingErrorMsg": "Error during report preserving"
+  "reportPreservingErrorMsg": "Error during report preserving",
+  "deleteReport": "Delete report",
+  "reportDeletedSuccessfully": "Report deleted successfully",
+  "reportDeletingErrorMsg": "Error during report deleting"
 }

@@ -12,7 +12,7 @@ import { TableContainer,
 } from "@carbon/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { getCurrentSession, getReports, preserveReport } from "./reports.resource";
+import { cancelReportRequest, getCurrentSession, getReports, preserveReport } from "./reports.resource";
 import { Play, 
   Calendar, 
   Download, 
@@ -144,6 +144,27 @@ const OverviewComponent: React.FC = () => {
       })
   }, []);
 
+  const handleDeleteRaport = useCallback(async (reportRequestUuid: string) => {
+    cancelReportRequest(reportRequestUuid)
+      .then(() => {
+        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
+        showToast({
+          critical: true,
+          kind: 'success',
+          title: t('deleteReport', 'Delete report'),
+          description: t('reportDeletedSuccessfully', 'Report deleted successfully')
+        });
+      })
+      .catch(error => {
+        showToast({
+          critical: true,
+          kind: 'error',
+          title: t('deleteReport', 'Delete report'),
+          description: t('reportDeletingErrorMsg', 'Error during report deleting')
+        });
+      })
+  }, []);
+
   return (
     <div>
       <ExtensionSlot name="breadcrumbs-slot" className={styles.breadcrumb}/>
@@ -232,7 +253,7 @@ const OverviewComponent: React.FC = () => {
                                 label={t('delete', 'Delete')}
                                 icon={() => <TrashCan size={16} className={styles.actionButtonIcon} />}
                                 reportRequestUuid={row.id}
-                                onClick={() => console.log('delete button click')}
+                                onClick={() => handleDeleteRaport(row.id)}
                               />
                             </div>
                           ) : cell.info.header === 'status' ? (

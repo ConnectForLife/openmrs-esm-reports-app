@@ -56,5 +56,8 @@
   "completed": "Completed",
   "scheduleCompleted": "Schedule Completed",
   "completedAndPreserved": "Completed and Preserved",
-  "failed": "Failed"
+  "failed": "Failed",
+  "preserveReport": "Preserve report",
+  "reportPreservedSuccessfully": "Report preserved successfully",
+  "reportPreservingErrorMsg": "Error during report preserving"
 }

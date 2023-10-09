@@ -110,6 +110,14 @@ export async function cancelReportRequest(reportRequestUuid: string) {
   });
 }
 
+export async function preserveReport(reportRequestUuid: string) {
+  const apiUrl = `/ws/rest/v1/reportingrest/preserveReport?reportRequestUuid=${reportRequestUuid}`;
+
+  return openmrsFetch(apiUrl, {
+    method: 'POST'
+  });
+}
+
 function mapReportResults(data: any) : ReportModel {
   return {
     id: data.uuid,

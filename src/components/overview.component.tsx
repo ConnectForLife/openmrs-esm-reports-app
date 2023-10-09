@@ -10,9 +10,9 @@ import { TableContainer,
   Pagination,
   Checkbox
 } from "@carbon/react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { getCurrentSession, getReports } from "./reports.resource";
+import { getCurrentSession, getReports, preserveReport } from "./reports.resource";
 import { Play, 
   Calendar, 
   Download, 
@@ -20,7 +20,7 @@ import { Play,
   TrashCan
 } from '@carbon/react/icons';
 import styles from './reports.scss';
-import { ExtensionSlot, Session, isDesktop, useLayoutType, usePagination } from "@openmrs/esm-framework";
+import { ExtensionSlot, Session, isDesktop, showToast, useLayoutType, usePagination } from "@openmrs/esm-framework";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
 import { launchOverlay } from "../hooks/useOverlay";
 import RunReportForm from "./run-report/run-report-form.component";
@@ -28,6 +28,7 @@ import Overlay from "./overlay.component";
 import ReportStatus from "./report-status.component";
 import { COMPLETED, SAVED } from "./report-statuses-constants";
 import ReportOverviewButton from "./report-overview-button.component";
+import { mutate } from 'swr';
 
 const OverviewComponent: React.FC = () => {
   const { t } = useTranslation();
@@ -122,6 +123,27 @@ const OverviewComponent: React.FC = () => {
     setCheckedReportUuidsArray(checkedReportUuidsArray);
   }
 
+  const handlePreserveReport = useCallback(async (reportRequestUuid: string) => {
+    preserveReport(reportRequestUuid)
+      .then(() => {
+        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
+        showToast({
+          critical: true,
+          kind: 'success',
+          title: t('preserveReport', 'Preserve report'),
+          description: t('reportPreservedSuccessfully', 'Report preserved successfully')
+        });
+      })
+      .catch(error => {
+        showToast({
+          critical: true,
+          kind: 'error',
+          title: t('preserveReport', 'Preserve report'),
+          description: t('reportPreservingErrorMsg', 'Error during report preserving')
+        });
+      })
+  }, []);
+
   return (
     <div>
       <ExtensionSlot name="breadcrumbs-slot" className={styles.breadcrumb}/>
@@ -203,7 +225,7 @@ const OverviewComponent: React.FC = () => {
                                 label={t('preserve', 'Preserve')}
                                 icon={() => <Save size={16} className={styles.actionButtonIcon} />}
                                 reportRequestUuid={row.id}
-                                onClick={() => console.log('preserve button click')}
+                                onClick={() => handlePreserveReport(row.id)}
                               />
                               <ReportOverviewButton
                                 shouldBeDisplayed={isEligibleReportUser(row.id)}

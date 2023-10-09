@@ -32,7 +32,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
           description: t('reportCanceledSuccessfully', 'Report canceled successfully')
         });
       })
-      .catch((error) => {
+      .catch(error => {
         showToast({
           critical: true,
           kind: 'error',

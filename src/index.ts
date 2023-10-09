@@ -37,6 +37,10 @@ export function startupApp() {
 
   registerBreadcrumbs([
     {
+      title: 'Home',
+      path: `${window.openmrsBase}`,
+    },
+    {
       title: 'Reports',
       path: `${window.spaBase}/reports`,
       parent: `${window.spaBase}/home`

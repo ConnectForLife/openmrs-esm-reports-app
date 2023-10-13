@@ -12,7 +12,7 @@ import { TableContainer,
 } from "@carbon/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { cancelReportRequest, getCurrentSession, getReports, preserveReport } from "./reports.resource";
+import { getCurrentSession, getReports, preserveReport } from "./reports.resource";
 import { Play, 
   Calendar, 
   Download, 
@@ -20,7 +20,7 @@ import { Play,
   TrashCan
 } from '@carbon/react/icons';
 import styles from './reports.scss';
-import { ExtensionSlot, Session, isDesktop, showToast, useLayoutType, usePagination } from "@openmrs/esm-framework";
+import { ExtensionSlot, Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from "@openmrs/esm-framework";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
 import { launchOverlay } from "../hooks/useOverlay";
 import RunReportForm from "./run-report/run-report-form.component";
@@ -144,26 +144,13 @@ const OverviewComponent: React.FC = () => {
       })
   }, []);
 
-  const handleDeleteRaport = useCallback(async (reportRequestUuid: string) => {
-    cancelReportRequest(reportRequestUuid)
-      .then(() => {
-        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
-        showToast({
-          critical: true,
-          kind: 'success',
-          title: t('deleteReport', 'Delete report'),
-          description: t('reportDeletedSuccessfully', 'Report deleted successfully')
-        });
-      })
-      .catch(error => {
-        showToast({
-          critical: true,
-          kind: 'error',
-          title: t('deleteReport', 'Delete report'),
-          description: t('reportDeletingErrorMsg', 'Error during report deleting')
-        });
-      })
-  }, []);
+  const launchDeleteReportDialog = (reportRequestUuid: string) => {
+    const dispose = showModal('cancel-report-modal', {
+      closeModal: () => dispose(),
+      reportRequestUuid,
+      isDeleteModal: true
+    });
+  };
 
   return (
     <div>
@@ -253,7 +240,7 @@ const OverviewComponent: React.FC = () => {
                                 label={t('delete', 'Delete')}
                                 icon={() => <TrashCan size={16} className={styles.actionButtonIcon} />}
                                 reportRequestUuid={row.id}
-                                onClick={() => handleDeleteRaport(row.id)}
+                                onClick={() => launchDeleteReportDialog(row.id)}
                               />
                             </div>
                           ) : cell.info.header === 'status' ? (

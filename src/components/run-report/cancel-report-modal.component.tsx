@@ -12,9 +12,11 @@ import { mutate } from 'swr';
 interface CancelReportModalProps {
   closeModal: () => void;
   reportRequestUuid: string;
+  isDeleteModal: boolean;
 }
 
-const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, reportRequestUuid }) => {
+const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, reportRequestUuid, isDeleteModal }) => {
+  console.log('isDeleteModal-->', isDeleteModal);
   const { t } = useTranslation();
   const [isCanceling, setIsCanceling] = useState(false);
 
@@ -22,31 +24,37 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
     setIsCanceling(true);
     cancelReportRequest(reportRequestUuid)
       .then(() => {
-        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=processing`);
-        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
+        callMutates();
         closeModal();
         showToast({
           critical: true,
           kind: 'success',
-          title: t('cancelReport', 'Cancel report'),
-          description: t('reportCanceledSuccessfully', 'Report canceled successfully')
+          title: isDeleteModal ? t('deleteReport', 'Delete report') : t('cancelReport', 'Cancel report'),
+          description: isDeleteModal ? t('reportDeletedSuccessfully', 'Report deleted successfully') : t('reportCanceledSuccessfully', 'Report canceled successfully')
         });
       })
       .catch(error => {
         showToast({
           critical: true,
           kind: 'error',
-          title: t('cancelReport', 'Cancel report'),
-          description: t('reportCancelingErrorMsg', 'Error during report canceling')
+          title: isDeleteModal ? t('deleteReport', 'Delete report') : t('cancelReport', 'Cancel report'),
+          description: isDeleteModal ? t('reportDeletingErrorMsg', 'Error during report deleting') : t('Error during report canceling')
         });
       })
   }, [closeModal]);
 
+  const callMutates = () => {
+    mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
+    if (!isDeleteModal) {
+      mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=processing`);
+    }
+  }
+
   return (
     <div>
-      <ModalHeader closeModal={closeModal} title={t('cancelReport', 'Cancel report')} />
+      <ModalHeader closeModal={closeModal} title={isDeleteModal ? t('deleteReport', 'Delete report') : t('cancelReport', 'Cancel report')} />
       <ModalBody>
-        <p>{t('cancelReportModalText', 'Are you sure you want to cancel this report?')}</p>
+        <p>{isDeleteModal ? t('deleteReportModalText', 'Are you sure you want to delete this report?') : t('cancelReportModalText', 'Are you sure you want to cancel this report?')}</p>
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={closeModal}>
@@ -54,7 +62,7 @@ const CancelReportModal: React.FC<CancelReportModalProps> = ({ closeModal, repor
         </Button>
         <Button kind="danger" onClick={handleCancel} disabled={isCanceling}>
           {isCanceling ? (
-            <InlineLoading description={t('canceling', 'Canceling') + '...'} />
+            <InlineLoading description={isDeleteModal ? t('deleting', 'Deleting') : t('canceling', 'Canceling') + '...'} />
           ) : (
             <span>{t('yes', 'Yes')}</span>
           )}

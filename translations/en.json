@@ -62,5 +62,7 @@
   "reportPreservingErrorMsg": "Error during report preserving",
   "deleteReport": "Delete report",
   "reportDeletedSuccessfully": "Report deleted successfully",
-  "reportDeletingErrorMsg": "Error during report deleting"
+  "reportDeletingErrorMsg": "Error during report deleting",
+  "deleteReportModalText": "Are you sure you want to delete this report?",
+  "deleting": "Deleting"
 }

@@ -44,6 +44,11 @@ export function startupApp() {
       title: 'Reports',
       path: `${window.spaBase}/reports`,
       parent: `${window.spaBase}/home`
+    },
+    {
+      title: 'Scheduled Reports',
+      path: `${window.spaBase}/reports/scheduled-overview`,
+      parent: `${window.spaBase}/reports`
     }
   ]);
 }
@@ -60,8 +65,18 @@ export const root = getAsyncLifecycle(
   options
 );
 
+export const reportsLink = getAsyncLifecycle(
+  () => import("./reports-link"),
+  options
+);
+
 export const overview = getAsyncLifecycle(
   () => import("./components/overview.component"),
+  options
+);
+
+export const scheduledOverview = getAsyncLifecycle(
+  () => import("./components/scheduled-overview.component"),
   options
 );
 

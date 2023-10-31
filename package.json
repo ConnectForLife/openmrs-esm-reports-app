@@ -45,6 +45,9 @@
   },
   "dependencies": {
     "@carbon/react": "^1.33.1",
+    "@datasert/cronjs-parser": "^1.2.0",
+    "@datasert/cronjs-matcher": "^1.2.0",
+    "cronstrue": "^2.41.0",
     "lodash-es": "^4.17.21",
     "react-image-annotate": "^1.8.0"
   },

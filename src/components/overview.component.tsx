@@ -10,17 +10,18 @@ import { TableContainer,
   Pagination,
   Checkbox
 } from "@carbon/react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { getCurrentSession, getReports, preserveReport } from "./reports.resource";
-import { Play, 
-  Calendar, 
-  Download, 
-  Save, 
+import { getReports, preserveReport } from "./reports.resource";
+import { userHasAccess, useSession } from "@openmrs/esm-framework";
+import { Play,
+  Calendar,
+  Download,
+  Save,
   TrashCan
 } from '@carbon/react/icons';
 import styles from './reports.scss';
-import { ExtensionSlot, Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from "@openmrs/esm-framework";
+import { ExtensionSlot, isDesktop, showModal, showToast, useLayoutType, usePagination, navigate } from "@openmrs/esm-framework";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
 import { launchOverlay } from "../hooks/useOverlay";
 import RunReportForm from "./run-report/run-report-form.component";
@@ -29,22 +30,11 @@ import ReportStatus from "./report-status.component";
 import { COMPLETED, SAVED } from "./report-statuses-constants";
 import ReportOverviewButton from "./report-overview-button.component";
 import { mutate } from 'swr';
+import { PRIVILEGE_SYSTEM_DEVELOPER } from "../constants";
 
 const OverviewComponent: React.FC = () => {
   const { t } = useTranslation();
-
-  const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const session = await getCurrentSession();
-        setCurrentSession(session);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-    fetchData();
-  }, []);
+  const currentSession = useSession();
 
   let [checkedReportUuidsArray, setCheckedReportUuidsArray] = useState([]);
   const [downloadReportButtonVisible, setDownloadReportButtonVisible] = useState(false);
@@ -79,9 +69,7 @@ const OverviewComponent: React.FC = () => {
   }
 
   function isSystemDeveloperUser() {
-    const systemDeveloperRoleName = 'System Developer';
-
-    return currentSession?.user?.roles.map(role => role.display).includes(systemDeveloperRoleName);
+    return userHasAccess(PRIVILEGE_SYSTEM_DEVELOPER, currentSession.user);
   }
 
   function isEligibleReportUser(reportRequestUuid: string) {
@@ -94,7 +82,7 @@ const OverviewComponent: React.FC = () => {
     if (statusValue === COMPLETED || statusValue === SAVED) {
       return (
         <td className={index % 2 == 0 ? styles.rowCellEven : styles.rowCellOdd}>
-          <Checkbox 
+          <Checkbox
             id={`checkbox-${row.id}`}
             onChange={e => handleOnCheckboxClick(e)}
           />
@@ -118,7 +106,7 @@ const OverviewComponent: React.FC = () => {
     } else {
       checkedReportUuidsArray = checkedReportUuidsArray.filter(checkedReportUuid => checkedReportUuid !== reportUuid);
     }
-    
+
     setDownloadReportButtonVisible(checkedReportUuidsArray.length > 0);
     setCheckedReportUuidsArray(checkedReportUuidsArray);
   }
@@ -177,7 +165,7 @@ const OverviewComponent: React.FC = () => {
           iconDescription="Run reports"
           onClick={() => {
             launchOverlay(
-              t('runReport', 'Run Report'), 
+              t('runReport', 'Run Report'),
               <RunReportForm />
             );
           }}
@@ -190,7 +178,7 @@ const OverviewComponent: React.FC = () => {
           kind="ghost"
           renderIcon={() => <Calendar size={16} style={{ fill: '#0F62FE'}} className={styles.actionButtonIcon} />}
           iconDescription="Report schedule"
-          onClick={() => console.log('report schedule click')}
+          onClick={() => navigate({ to: `\${openmrsSpaBase}/reports/scheduled-overview` })}
           className={styles.mainActionButton}
         >
           {t('reportSchedule', 'Report schedule')}
@@ -263,7 +251,7 @@ const OverviewComponent: React.FC = () => {
           )
         }
       </DataTable>
-      <Pagination 
+      <Pagination
         backwardText={t('previousPage', 'Previous page')}
         forwardText={t('nextPage', 'Next page')}
         page={currentPage}

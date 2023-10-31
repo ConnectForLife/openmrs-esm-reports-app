@@ -14,6 +14,7 @@ interface ReportModel {
   parameters: any;
   id: string;
   evaluateCompleteDatetime: string;
+  schedule: string;
 }
 
 export async function getCurrentSession(): Promise<Session> {
@@ -34,11 +35,11 @@ export function getLocations() {
   };
 }
 
-export function getReports(statusesGroup: string) : any {
-  const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest?statusesGroup=${statusesGroup}`;
+export function getReports(statusesGroup: string, sortBy?:string) : any {
+  const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest?statusesGroup=${statusesGroup}` + (sortBy ? `&sortBy=${sortBy}` : '');
 
   const { data, error, isValidating, mutate } = useSWR<{data: { results: Array<any> } }, Error> (
-    reportsUrl, 
+    reportsUrl,
     openmrsFetch
   );
 
@@ -75,7 +76,7 @@ export async function getReportDesigns(reportDefinitionUuid: string): Promise<an
 
     return reportDesigns ? [].concat(...reportDesigns.map(design => mapDesignResults(design))) : [];
   }
-  
+
   return [];
 }
 
@@ -129,6 +130,7 @@ function mapReportResults(data: any) : ReportModel {
     outputFormat: data.renderingMode.label,
     parameters: convertParametersToString(data),
     evaluateCompleteDatetime: moment(data.evaluateCompleteDatetime).format("YYYY-MM-DD HH:mm"),
+    schedule: data.schedule
   };
 }
 

@@ -13,7 +13,7 @@ interface ReportOverviewButtonProps {
 const ReportOverviewButton: React.FC<ReportOverviewButtonProps> = ({ shouldBeDisplayed, label, icon, onClick }) => {
   if (shouldBeDisplayed) {
     return (
-      <div className={styles.actionButtonsWrapperDiv}>                              
+      <div className={styles.actionButtonsWrapperDiv}>
       <Button
         kind="ghost"
         renderIcon={icon}

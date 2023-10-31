@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Header } from '@carbon/react';
 import { ArrowLeft, Close } from '@carbon/react/icons';
 import { useLayoutType } from '@openmrs/esm-framework';
-import { closeOverlay, useOverlay } from './../hooks/useOverlay';
+import { closeOverlay, useOverlay } from '../hooks/useOverlay';
 import styles from './overlay.scss';
 
 const Overlay: React.FC = () => {

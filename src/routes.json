@@ -12,9 +12,20 @@
     {
       "component": "overview",
       "route": "overview"
+    },
+    {
+      "component": "scheduled-overview",
+      "route": "scheduled-overview"
     }
   ],
   "extensions": [
+    {
+      "name": "reports-link",
+      "slot": "app-menu-slot",
+      "component": "reportsLink",
+      "online": true,
+      "offline": true
+    },
     {
       "name": "run-report",
       "component": "runReport"

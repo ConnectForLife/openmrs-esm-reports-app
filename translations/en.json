@@ -64,5 +64,11 @@
   "reportDeletedSuccessfully": "Report deleted successfully",
   "reportDeletingErrorMsg": "Error during report deleting",
   "deleteReportModalText": "Are you sure you want to delete this report?",
-  "deleting": "Deleting"
+  "deleting": "Deleting",
+  "scheduled": "Scheduled",
+  "scheduledReports": "Scheduled Reports",
+  "deleteSchedule": "Delete Schedule",
+  "edit": "Edit",
+  "schedule": "Schedule",
+  "nextRun": "Next run"
 }

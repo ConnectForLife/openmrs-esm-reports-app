@@ -3211,6 +3211,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@datasert/cronjs-matcher@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@datasert/cronjs-matcher@npm:1.2.0"
+  dependencies:
+    "@datasert/cronjs-parser": ^1.2.0
+    luxon: ^2.1.1
+  checksum: bf66715db1c5bb0ecb6ee5c39350bb039b0c8458d7ffc445a0cc66f336305ffd572396b2eff67c46ac05976faa9c2f0250af9373205a0a17bf4b5c6e815cd164
+  languageName: node
+  linkType: hard
+
+"@datasert/cronjs-parser@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@datasert/cronjs-parser@npm:1.2.0"
+  checksum: 6e4117d545a76c822d28f99188d6a1f1fd067b71ef439020738634e46e1740955c7a9051cf1a719da9b09be22a9674674e93b0be576fc3a399c42e41225999ef
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.0":
   version: 0.5.7
   resolution: "@discoveryjs/json-ext@npm:0.5.7"
@@ -9774,6 +9791,15 @@ __metadata:
     path-type: ^4.0.0
     yaml: ^1.10.0
   checksum: 4be63e7117955fd88333d7460e4c466a90f556df6ef34efd59034d2463484e339666c41f02b523d574a797ec61f4a91918c5b89a316db2ea2f834e0d2d09465b
+  languageName: node
+  linkType: hard
+
+"cronstrue@npm:^2.41.0":
+  version: 2.41.0
+  resolution: "cronstrue@npm:2.41.0"
+  bin:
+    cronstrue: bin/cli.js
+  checksum: 3636ed90c4e3d65ea6d4d59f89758da7e5a7546b37952653c4f783f48c8ea75b6b96a6d579888026b37c2b035e16836b91ab02027a0ba33ab5c03906a344f606
   languageName: node
   linkType: hard
 
@@ -16641,6 +16667,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"luxon@npm:^2.1.1":
+  version: 2.5.2
+  resolution: "luxon@npm:2.5.2"
+  checksum: d8b671ffd2ff0b438af862ac11082a81b3aedd9f8b6a4ca636f944224f8dd381125cd4d274ca0a8aedcaf2cfca0fc2ca96fe4cc1b16a28b7af701afb95c0bff8
+  languageName: node
+  linkType: hard
+
 "lz-string@npm:^1.4.4":
   version: 1.4.4
   resolution: "lz-string@npm:1.4.4"
@@ -20709,6 +20742,7 @@ __metadata:
   resolution: "reportsModule@workspace:."
   dependencies:
     "@carbon/react": ^1.33.1
+    "@datasert/cronjs-matcher": ^1.2.0
     "@openmrs/esm-framework": next
     "@openmrs/esm-styleguide": next
     "@swc/cli": ^0.1.62
@@ -20726,6 +20760,7 @@ __metadata:
     "@types/webpack-env": ^1.18.1
     "@typescript-eslint/eslint-plugin": ^5.61.0
     "@typescript-eslint/parser": ^5.61.0
+    cronstrue: ^2.41.0
     css-loader: ^6.8.1
     eslint: ^8.44.0
     eslint-config-prettier: ^8.8.0

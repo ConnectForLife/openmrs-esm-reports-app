@@ -70,5 +70,8 @@
   "deleteSchedule": "Delete Schedule",
   "edit": "Edit",
   "schedule": "Schedule",
-  "nextRun": "Next run"
+  "nextRun": "Next run",
+  "downloadReport": "Download report(s)",
+  "reportDownloadedSuccessfully": "Report(s) downloaded successfully",
+  "reportDownloadingErrorMsg": "Error during report(s) downloading"
 }

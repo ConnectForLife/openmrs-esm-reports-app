@@ -12,7 +12,7 @@ import { TableContainer,
 } from "@carbon/react";
 import React, { useCallback, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { getReports, preserveReport } from "./reports.resource";
+import { downloadMultipleReports, downloadReport, getReports, preserveReport } from "./reports.resource";
 import { userHasAccess, useSession } from "@openmrs/esm-framework";
 import { Play,
   Calendar,
@@ -140,6 +140,61 @@ const OverviewComponent: React.FC = () => {
     });
   };
 
+  const handleDownloadReport = useCallback(async (reportRequestUuid: string) => {
+    try {
+      const response = await downloadReport(reportRequestUuid);
+      processAndDownloadFile(response);
+      showToast({
+        critical: true,
+        kind: 'success',
+        title: t('downloadReport', 'Download report'),
+        description: t('reportDownloadedSuccessfully', 'Report downloaded successfully')
+      });
+    } catch (error) {
+      showToast({
+        critical: true,
+        kind: 'error',
+        title: t('downloadReport', 'Download report'),
+        description: t('reportDownloadingErrorMsg', 'Error during report downloading')
+      });
+    }
+  }, []);
+
+  const handleDownloadMultipleReports = useCallback(async (reportRequestUuids) => {
+    try {
+      const response = await downloadMultipleReports(reportRequestUuids);
+      response.forEach(file => processAndDownloadFile(file));
+      showToast({
+        critical: true,
+        kind: 'success',
+        title: t('downloadReport', 'Download report(s)'),
+        description: t('reportDownloadedSuccessfully', 'Report(s) downloaded successfully')
+      });
+    } catch (error) {
+      showToast({
+        critical: true,
+        kind: 'error',
+        title: t('downloadReport', 'Download report(s)s'),
+        description: t('reportDownloadingErrorMsg', 'Error during report(s) downloading')
+      });
+    }
+  }, []);
+
+  const processAndDownloadFile = file => {
+    const decodedData = window.atob(file.fileContent);
+    const byteArray = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; i++) {
+      byteArray[i] = decodedData.charCodeAt(i);
+    }
+    const url = window.URL.createObjectURL(new Blob([byteArray]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', file.filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <div>
       <ExtensionSlot name="breadcrumbs-slot" className={styles.breadcrumb}/>
@@ -154,7 +209,7 @@ const OverviewComponent: React.FC = () => {
           kind="ghost"
           renderIcon={() => <Download size={16} style={{ fill: '#0F62FE'}} className={styles.actionButtonIcon} />}
           iconDescription="Download reports"
-          onClick={() => console.log('download reports click')}
+          onClick={() => handleDownloadMultipleReports(checkedReportUuidsArray.join(","))}
           className={`${styles.mainActionButton} ${downloadReportButtonVisible ? styles.downloadReportsVisible : styles.downloadReportsHidden}`}
         >
           {t('downloadReports', 'Download reports')}
@@ -214,7 +269,7 @@ const OverviewComponent: React.FC = () => {
                                 label={t('download', 'Download')}
                                 icon={() => <Download size={16} className={styles.actionButtonIcon} />}
                                 reportRequestUuid={row.id}
-                                onClick={() => console.log('download button click')}
+                                onClick={() => handleDownloadReport(row.id)}
                               />
                               <ReportOverviewButton
                                 shouldBeDisplayed={getReportStatus(row) === COMPLETED && isEligibleReportUser(row.id)}

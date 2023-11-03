@@ -119,6 +119,22 @@ export async function preserveReport(reportRequestUuid: string) {
   });
 }
 
+export async function downloadReport(reportRequestUuid: string) {
+  const apiUrl = `/ws/rest/v1/reportingrest/downloadReport?reportRequestUuid=${reportRequestUuid}`;
+
+  const { data } = await openmrsFetch<any>(apiUrl);
+
+  return data;
+}
+
+export async function downloadMultipleReports(reportRequestUuids: string[]) {
+  const apiUrl = `/ws/rest/v1/reportingrest/downloadMultipleReports?reportRequestUuids=${reportRequestUuids}`;
+
+  const { data } = await openmrsFetch<any>(apiUrl);
+
+  return data;
+}
+
 function mapReportResults(data: any) : ReportModel {
   return {
     id: data.uuid,

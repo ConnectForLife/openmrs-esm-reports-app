@@ -65,7 +65,7 @@ const ScheduledOverviewComponent: React.FC = () => {
                       <TableRow className={styles.tableRow}>
                         {row.cells.map((cell) => (
                           <TableCell className={index % 2 == 0 ? styles.rowCellEven : styles.rowCellOdd}>
-                            <ScheduledOverviewCellContent cell={cell} />
+                            <ScheduledOverviewCellContent cell={cell} row={row} />
                           </TableCell>
                         ))}
                       </TableRow>

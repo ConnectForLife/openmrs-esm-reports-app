@@ -136,7 +136,7 @@ const OverviewComponent: React.FC = () => {
     const dispose = showModal('cancel-report-modal', {
       closeModal: () => dispose(),
       reportRequestUuid,
-      isDeleteModal: true
+      modalType: 'delete'
     });
   };
 

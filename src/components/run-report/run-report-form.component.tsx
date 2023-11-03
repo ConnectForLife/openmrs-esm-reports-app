@@ -236,7 +236,7 @@ const RunReportForm: React.FC = () => {
     const dispose = showModal('cancel-report-modal', {
       closeModal: () => dispose(),
       reportRequestUuid,
-      isDeleteModal: false
+      modalType: 'cancel'
     });
   };
 

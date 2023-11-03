@@ -43,7 +43,7 @@
   "cancelReportModalText": "Are you sure you want to cancel this report?",
   "canceling": "Canceling",
   "cancelReport": "Cancel report",
-  "reportCanceledSuccessfully": "Report canceled successfully",
+  "reportCancelledSuccessfully": "Report cancelled successfully",
   "reportCancelingErrorMsg": "Error during report canceling",
   "reportRunning": "Report running",
   "reportRanSuccessfullyMsg": "Report ran successfully",
@@ -73,5 +73,9 @@
   "nextRun": "Next run",
   "downloadReport": "Download report(s)",
   "reportDownloadedSuccessfully": "Report(s) downloaded successfully",
-  "reportDownloadingErrorMsg": "Error during report(s) downloading"
+  "reportDownloadingErrorMsg": "Error during report(s) downloading",
+  "scheduleReport": "Schedule report",
+  "deleteReportScheduleModalText": "Are you sure you want to delete this schedule?",
+  "reportScheduleDeletedSuccessfully": "Report schedule deleted successfully",
+  "reportScheduleDeletingErrorMsg": "Error during report schedule deleting"
 }

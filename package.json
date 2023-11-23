@@ -1,5 +1,5 @@
 {
-  "name": "reportsModule",
+  "name": "@openmrs/esm-reports-app",
   "version": "3.0.0",
   "license": "MPL-2.0",
   "description": "An OpenMRS seed application for building microfrontends",
@@ -45,9 +45,10 @@
   },
   "dependencies": {
     "@carbon/react": "^1.33.1",
-    "@datasert/cronjs-parser": "^1.2.0",
     "@datasert/cronjs-matcher": "^1.2.0",
+    "@datasert/cronjs-parser": "^1.2.0",
     "cronstrue": "^2.41.0",
+    "dayjs": "^1.8.36",
     "lodash-es": "^4.17.21",
     "react-image-annotate": "^1.8.0"
   },
@@ -70,6 +71,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^28.1.8",
+    "@types/lodash-es": "^4.17.11",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/react-router": "^5.1.20",

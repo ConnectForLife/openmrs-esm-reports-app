@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ExtensionSlot, useLayoutType, usePagination, isDesktop } from "@openmrs/esm-framework";
+import { ExtensionSlot, isDesktop, useLayoutType, usePagination } from "@openmrs/esm-framework";
 import styles from "./reports.scss";
 import { useTranslation } from "react-i18next";
 import {
@@ -13,22 +13,35 @@ import {
   TableHeader,
   TableRow
 } from "@carbon/react";
-import { getReports } from "./reports.resource";
+import { useScheduledReports } from "./reports.resource";
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
 import ScheduledOverviewCellContent from "./scheduled-overview-cell-content.component";
+import Overlay from "./overlay.component";
 
 const ScheduledOverviewComponent: React.FC = () => {
   const { t } = useTranslation();
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const layout = useLayoutType();
-  const scheduledReports = (() => {
-    const reportsResponse = getReports('scheduled', 'name');
-    return reportsResponse ? reportsResponse.data.map(row => ({...row, nextRun: row.schedule})) : [];
-  })();
-  const { currentPage, results, goTo } = usePagination(scheduledReports, pageSize);
+
+  const { scheduledReports, mutateScheduledReports } = useScheduledReports('name');
+  const scheduledReportRows = scheduledReports ? scheduledReports.map(
+    report => ({
+      id: report.reportRequestUuid ? report.reportRequestUuid : report.reportDefinitionUuid,
+      name: report.name,
+      status: !!report.reportRequestUuid,
+      schedule: report.schedule,
+      nextRun: report.schedule,
+      actions: {
+        reportDefinitionUuid: report.reportDefinitionUuid,
+        reportRequestUuid: report.reportRequestUuid
+      }
+    })
+  ) : [];
+
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const { currentPage, results, goTo } = usePagination(scheduledReportRows, pageSize);
 
   const tableHeaders = [
-    { key: 'reportName', header: t('reportName', 'Report Name') },
+    { key: 'name', header: t('reportName', 'Report Name') },
     { key: 'status', header: t('status', 'Status') },
     { key: 'schedule', header: t('schedule', 'Schedule') },
     { key: 'nextRun', header: t('nextRun', 'Next run') },
@@ -65,7 +78,7 @@ const ScheduledOverviewComponent: React.FC = () => {
                       <TableRow className={styles.tableRow}>
                         {row.cells.map((cell) => (
                           <TableCell className={index % 2 == 0 ? styles.rowCellEven : styles.rowCellOdd}>
-                            <ScheduledOverviewCellContent cell={cell} row={row} />
+                            <ScheduledOverviewCellContent cell={cell} mutate={mutateScheduledReports}/>
                           </TableCell>
                         ))}
                       </TableRow>
@@ -95,6 +108,7 @@ const ScheduledOverviewComponent: React.FC = () => {
           }}
         />
       </div>
+      <Overlay/>
     </div>
   );
 };

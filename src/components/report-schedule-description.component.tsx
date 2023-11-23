@@ -8,7 +8,11 @@ interface ReportScheduleProps {
 
 const ReportScheduleDescription: React.FC<ReportScheduleProps> = ({ schedule }) => {
   const session = useSession();
-  const scheduleDescription = cronstrue.toString(schedule, { locale: session.locale, use24HourTimeFormat: true });
+  const scheduleDescription = schedule ? cronstrue.toString(schedule, {
+    locale: session.locale,
+    use24HourTimeFormat: true,
+    dayOfWeekStartIndexZero: false
+  }) : "";
   return (
     <span>{scheduleDescription}</span>
   );

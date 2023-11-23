@@ -1,8 +1,10 @@
-import { Session, openmrsFetch } from "@openmrs/esm-framework";
+import { openmrsFetch, Session, FetchResponse, openmrsObservableFetch } from "@openmrs/esm-framework";
+import { Observable } from "rxjs";
 import useSWR from "swr";
 import moment from "moment";
 import { ReportDefinition } from "../types/report-definition";
 import { ReportDesign } from "../types/report-design";
+import { ReportRequest } from "../types/report-request";
 
 interface ReportModel {
   reportName: string;
@@ -17,6 +19,21 @@ interface ReportModel {
   schedule: string;
 }
 
+interface ScheduledReportModel {
+  reportDefinitionUuid: string;
+  reportRequestUuid: string;
+  name: string;
+  schedule: string;
+}
+
+export interface RunReportRequest {
+  existingRequestUuid: string|undefined,
+  reportDefinitionUuid: string,
+  renderModeUuid: string,
+  reportParameters: any,
+  schedule: string|undefined
+}
+
 export async function getCurrentSession(): Promise<Session> {
   const { data } = await openmrsFetch<Session>('/ws/rest/v1/session');
   return data;
@@ -25,7 +42,7 @@ export async function getCurrentSession(): Promise<Session> {
 export function getLocations() {
   const apiUrl = `/ws/rest/v1/location?tag=Login+Location`;
 
-  const { data } = useSWR<{data: { results: Array<any> } }, Error> (
+  const { data } = useSWR<{ data: { results: Array<any> } }, Error>(
     apiUrl,
     openmrsFetch
   );
@@ -35,10 +52,10 @@ export function getLocations() {
   };
 }
 
-export function getReports(statusesGroup: string, sortBy?:string) : any {
+export function getReports(statusesGroup: string, sortBy?: string): any {
   const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest?statusesGroup=${statusesGroup}` + (sortBy ? `&sortBy=${sortBy}` : '');
 
-  const { data, error, isValidating, mutate } = useSWR<{data: { results: Array<any> } }, Error> (
+  const { data, error, isValidating, mutate } = useSWR<{ data: { results: Array<any> } }, Error>(
     reportsUrl,
     openmrsFetch
   );
@@ -54,10 +71,55 @@ export function getReports(statusesGroup: string, sortBy?:string) : any {
   };
 }
 
+export function getReportRequest(reportRequestUuid: string): any {
+  if(!reportRequestUuid) {
+    return {
+      reportRequest: null,
+      isError: false,
+      isValidating: false,
+      mutate: () => {}
+    };
+  }
+
+
+  const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest/${reportRequestUuid}`;
+
+  const { data, error, isValidating, mutate } = useSWR<{data: ReportRequest}, Error>(
+    reportsUrl,
+    openmrsFetch
+  );
+
+  return {
+    reportRequest: data?.data,
+    isError: error,
+    isValidating: isValidating,
+    mutate
+  };
+}
+
+export function useScheduledReports(sortBy?: string): any {
+  const scheduledReportsUrl = `/ws/rest/v1/reportingrest/scheduledReport` + (sortBy ? `?sortBy=${sortBy}` : '');
+
+  const { data, error, isValidating, mutate } = useSWR<{ data: { results: Array<any> } }, Error>(
+    scheduledReportsUrl,
+    openmrsFetch
+  );
+
+  const scheduledReports = data?.data?.results;
+  const scheduledReportsArray: Array<any> = scheduledReports ? [].concat(...scheduledReports.map((report) => mapScheduledReportResults(report))) : [];
+
+  return {
+    scheduledReports: scheduledReportsArray,
+    isError: error,
+    isValidating: isValidating,
+    mutateScheduledReports: mutate
+  };
+}
+
 export function getReportDefinitions() {
   const apiUrl = `/ws/rest/v1/reportingrest/reportDefinition?v=full`;
 
-  const { data } = useSWR<{data: { results: Array<ReportDefinition> } }, Error> (
+  const { data } = useSWR<{ data: { results: Array<ReportDefinition> } }, Error>(
     apiUrl,
     openmrsFetch
   );
@@ -65,6 +127,17 @@ export function getReportDefinitions() {
   return {
     reportDefinitions: data ? data?.data?.results : [],
   };
+}
+
+export function getReportDefinition(reportDefinitionUuid: string): ReportDefinition {
+  const apiUrl = `/ws/rest/v1/reportingrest/reportDefinition/${reportDefinitionUuid}?v=full`;
+
+  const { data } = useSWR<{ data: ReportDefinition }, Error>(
+    apiUrl,
+    openmrsFetch
+  );
+
+  return data?.data;
 }
 
 export async function getReportDesigns(reportDefinitionUuid: string): Promise<any> {
@@ -80,7 +153,18 @@ export async function getReportDesigns(reportDefinitionUuid: string): Promise<an
   return [];
 }
 
-function mapDesignResults(design: any) : ReportDesign {
+export function getReportDesignsSWR(reportDefinitionUuid: string) {
+  const apiUrl = `/ws/rest/v1/reportingrest/designs?reportDefinitionUuid=${reportDefinitionUuid}`;
+
+  const { data } = useSWR<{ data: { results: ReportDesign[] } }, Error>(
+    apiUrl,
+    openmrsFetch
+  );
+
+  return data?.data.results;
+}
+
+function mapDesignResults(design: any): ReportDesign {
   return {
     name: design.name,
     uuid: design.uuid
@@ -100,6 +184,17 @@ export async function runReport(reportDefinitionUuid: string, renderModeUuid: st
     headers: {
       'Content-Type': 'application/json',
     },
+  });
+}
+
+export function runReportObservable(payload: RunReportRequest, abortController: AbortController): Observable<FetchResponse<any>> {
+  return openmrsObservableFetch(`/ws/rest/v1/reportingrest/runReport`, {
+    signal: abortController.signal,
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: payload,
   });
 }
 
@@ -135,7 +230,7 @@ export async function downloadMultipleReports(reportRequestUuids: string[]) {
   return data;
 }
 
-function mapReportResults(data: any) : ReportModel {
+function mapReportResults(data: any): ReportModel {
   return {
     id: data.uuid,
     reportName: data.parameterizable.name,
@@ -150,7 +245,16 @@ function mapReportResults(data: any) : ReportModel {
   };
 }
 
-function convertParametersToString(data: any) : string {
+function mapScheduledReportResults(data: any): ScheduledReportModel {
+  return {
+    reportDefinitionUuid: data.reportDefinition.uuid,
+    reportRequestUuid: data.reportScheduleRequest?.uuid,
+    name: data.reportDefinition.name,
+    schedule: data.reportScheduleRequest?.schedule,
+  };
+}
+
+function convertParametersToString(data: any): string {
   let finalString = '';
   const parameters = data.parameterizable.parameters;
   if (parameters.length > 0) {
@@ -166,7 +270,7 @@ function convertParametersToString(data: any) : string {
 
     finalString = finalString.trim();
 
-    if (finalString.charAt(finalString.length -1) === ',') {
+    if (finalString.charAt(finalString.length - 1) === ',') {
       finalString = finalString.slice(0, -1);
     }
   }

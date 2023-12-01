@@ -61,9 +61,9 @@ const RunReportForm: React.FC = () => {
   useEffect(() => {
     const paramTypes = currentReport?.parameters.map(param => param.type);
     const isAnyNotSupportedType = !paramTypes?.every(paramType => supportedParameterTypes.includes(paramType));
-    const isAllValuesNotEmpty = currentReport?.parameters.every(parameter => !!reportParameters[parameter.name] && reportParameters[parameter.name] !== 'Invalid Date');
+    const allParametersNotEmpty = currentReport?.parameters.every(parameter => !!reportParameters[parameter.name] && reportParameters[parameter.name] !== 'Invalid Date');
 
-    if (!isAnyNotSupportedType && isAllValuesNotEmpty && reportUuid !== '' && renderModeUuid !== '') {
+    if (!isAnyNotSupportedType && allParametersNotEmpty && reportUuid !== '' && renderModeUuid !== '') {
       setIsFormValid(true);
     } else {
       setIsFormValid(false);
@@ -189,6 +189,13 @@ const RunReportForm: React.FC = () => {
     setReportParameters((state) => ({...state, [key]: value}));
   }
 
+  function clearForm() {
+    setReportUuid('');
+    setCurrentReport(null);
+    setReportParameters({});
+    setRenderModeUuid('');
+  }
+
   function handleOnDateChange(fieldName, dateValue) {
     const date = new Date(dateValue).toLocaleDateString();
     setReportParameters((state) => ({...state, [fieldName]: date}));
@@ -204,6 +211,7 @@ const RunReportForm: React.FC = () => {
           title: t('reportRunning', 'Report running'),
           description: t('reportRanSuccessfullyMsg', 'Report ran successfully'),
         });
+        clearForm();
       })
       .catch((error) => {
         showToast({
@@ -252,6 +260,7 @@ const RunReportForm: React.FC = () => {
             setCurrentReport(reportDefinitions.find(reportDefinition => reportDefinition.uuid === e.target.value));
             setReportParameters({});
           }}
+          value={reportUuid}
         >
           <SelectItem value=""/>
           {
@@ -278,6 +287,7 @@ const RunReportForm: React.FC = () => {
           className={styles.basicInputElement} 
           labelText={t('outputFormat', 'Output format')}
           onChange={e => setRenderModeUuid(e.target.value)}
+          value={renderModeUuid}
         >
           <SelectItem value=""/>
           {

@@ -19,7 +19,6 @@ import { TableContainer,
   TextInput,
   DatePicker, 
   DatePickerInput,
-  Loading,
   Pagination
 } from "@carbon/react";
 import { Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from '@openmrs/esm-framework';
@@ -293,9 +292,6 @@ const RunReportForm: React.FC = () => {
       <div id="runningOrQueuedReportsDiv">
         <div className={styles.runningOrQueuedReportsDivTitle}>
           <h4 className={styles.tableHeader}>{t('queuedOrRunning', 'Queued or Running')}</h4>
-          <span className={styles.tableIcon}>
-            <Loading small={true} withOverlay={false} />
-          </span>
         </div>
         <DataTable rows={results} headers={tableHeaders}>
           {

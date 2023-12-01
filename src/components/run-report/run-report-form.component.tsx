@@ -23,6 +23,7 @@ import { TableContainer,
 } from "@carbon/react";
 import { Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from '@openmrs/esm-framework';
 import { mutate } from 'swr';
+import { DEFAULT_PAGE_SIZES } from '../pagination-constants';
 
 const RunReportForm: React.FC = () => {
   const { t } = useTranslation();
@@ -344,7 +345,7 @@ const RunReportForm: React.FC = () => {
           forwardText="Next page"
           page={currentPage}
           pageSize={pageSize}
-          pageSizes={[5, 10, 20, 50, 100]}
+          pageSizes={DEFAULT_PAGE_SIZES}
           totalItems={tableRows?.length}
           size={isDesktop(layout) ? 'sm' : 'lg'}
           onChange={({ pageSize: newPageSize, page: newPage }) => {

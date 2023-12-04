@@ -10,7 +10,7 @@ import { TableContainer,
   Pagination,
   Checkbox
 } from "@carbon/react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { downloadMultipleReports, downloadReport, getReports, preserveReport } from "./reports.resource";
 import { userHasAccess, useSession } from "@openmrs/esm-framework";
@@ -38,6 +38,10 @@ const OverviewComponent: React.FC = () => {
 
   let [checkedReportUuidsArray, setCheckedReportUuidsArray] = useState([]);
   const [downloadReportButtonVisible, setDownloadReportButtonVisible] = useState(false);
+
+  useEffect(() => {
+    setDownloadReportButtonVisible(checkedReportUuidsArray.length > 0);
+  }, [checkedReportUuidsArray]);
 
   const tableHeaders = [
     { key: 'reportName', header: t('reportName', 'Report Name') },
@@ -85,13 +89,14 @@ const OverviewComponent: React.FC = () => {
           <Checkbox
             id={`checkbox-${row.id}`}
             onChange={e => handleOnCheckboxClick(e)}
+            checked={checkedReportUuidsArray.includes(row.id)}
           />
         </td>
       );
     } else {
       return (
         <td className={index % 2 == 0 ? styles.rowCellEven : styles.rowCellOdd}></td>
-      )
+      );
     }
   }
 
@@ -101,14 +106,13 @@ const OverviewComponent: React.FC = () => {
     const reportUuid = checkboxId.slice(checkboxId.indexOf('-') +1);
     const isChecked = checkboxElement?.checked;
 
-    if (isChecked) {
-      checkedReportUuidsArray.push(reportUuid);
-    } else {
-      checkedReportUuidsArray = checkedReportUuidsArray.filter(checkedReportUuid => checkedReportUuid !== reportUuid);
-    }
-
-    setDownloadReportButtonVisible(checkedReportUuidsArray.length > 0);
-    setCheckedReportUuidsArray(checkedReportUuidsArray);
+    setCheckedReportUuidsArray(prevState => {
+      if (isChecked && !prevState.includes(reportUuid)) {
+        return [...prevState, reportUuid];
+      } else {
+        return prevState.filter(checkedReportUuid => checkedReportUuid !== reportUuid); 
+      }
+    });
   }
 
   const handlePreserveReport = useCallback(async (reportRequestUuid: string) => {
@@ -144,6 +148,7 @@ const OverviewComponent: React.FC = () => {
     try {
       const response = await downloadReport(reportRequestUuid);
       processAndDownloadFile(response);
+      clearReportCheckboxes();
       showToast({
         critical: true,
         kind: 'success',
@@ -164,6 +169,7 @@ const OverviewComponent: React.FC = () => {
     try {
       const response = await downloadMultipleReports(reportRequestUuids);
       response.forEach(file => processAndDownloadFile(file));
+      clearReportCheckboxes();
       showToast({
         critical: true,
         kind: 'success',
@@ -193,6 +199,10 @@ const OverviewComponent: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  const clearReportCheckboxes = () => {
+    setCheckedReportUuidsArray([]);
   }
 
   return (

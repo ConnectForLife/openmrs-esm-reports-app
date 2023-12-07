@@ -205,6 +205,7 @@ const RunReportForm: React.FC = () => {
   const handleRunReportButtonClick = useCallback(async (reportDefinitionUuid, renderModeUuid, reportParameters) => {
     runReport(reportDefinitionUuid, renderModeUuid, reportParameters)
       .then(() => {
+        clearForm();
         setTimeout(() => mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`), 500);
         showToast({
           critical: true,
@@ -212,7 +213,6 @@ const RunReportForm: React.FC = () => {
           title: t('reportRunning', 'Report running'),
           description: t('reportRanSuccessfullyMsg', 'Report ran successfully'),
         });
-        clearForm();
       })
       .catch((error) => {
         showToast({

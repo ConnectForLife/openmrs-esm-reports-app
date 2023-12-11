@@ -193,13 +193,6 @@ const RunReportForm: React.FC = () => {
     setReportParameters((state) => ({...state, [key]: value}));
   }
 
-  function clearForm() {
-    setReportUuid('');
-    setCurrentReport(null);
-    setReportParameters({});
-    setRenderModeUuid('');
-  }
-
   function handleOnDateChange(fieldName, dateValue) {
     const date = new Date(dateValue).toLocaleDateString();
     setReportParameters((state) => ({...state, [fieldName]: date}));
@@ -213,7 +206,7 @@ const RunReportForm: React.FC = () => {
     runReport(reportUuid, renderModeUuid, reportParameters)
       .then(() => {
         setIsSubmitting(false);
-        clearForm();
+        closeOverlay();
         setTimeout(() => mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`), 500);
         showToast({
           critical: true,

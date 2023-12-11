@@ -240,7 +240,8 @@ function mapReportResults(data: any): ReportModel {
     requestedOn: moment(data.requestDate).format("YYYY-MM-DD HH:mm"),
     outputFormat: data.renderingMode.label,
     parameters: convertParametersToString(data),
-    evaluateCompleteDatetime: moment(data.evaluateCompleteDatetime).format("YYYY-MM-DD HH:mm"),
+    evaluateCompleteDatetime:
+      data.evaluateCompleteDatetime ? moment(data.evaluateCompleteDatetime).format("YYYY-MM-DD HH:mm") : undefined,
     schedule: data.schedule
   };
 }

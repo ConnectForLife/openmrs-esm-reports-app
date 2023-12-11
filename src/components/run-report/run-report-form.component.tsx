@@ -4,7 +4,8 @@ import styles from "./run-report-form.scss";
 import { getCurrentSession, getLocations, getReportDefinitions, getReportDesigns, getReports, runReport } from "../reports.resource";
 import { ReportDesign } from '../../types/report-design';
 import { closeOverlay } from '../../hooks/useOverlay';
-import { TableContainer,
+import {
+  TableContainer,
   Table,
   TableRow,
   TableBody,
@@ -17,9 +18,10 @@ import { TableContainer,
   Select,
   SelectItem,
   TextInput,
-  DatePicker, 
+  DatePicker,
   DatePickerInput,
-  Pagination
+  Pagination,
+  Form
 } from "@carbon/react";
 import { Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from '@openmrs/esm-framework';
 import { mutate } from 'swr';
@@ -33,6 +35,7 @@ const RunReportForm: React.FC = () => {
   const [currentReport, setCurrentReport] = useState(null);
   const [reportParameters, setReportParameters] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   useEffect(() => {
@@ -46,7 +49,7 @@ const RunReportForm: React.FC = () => {
     }
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -115,14 +118,14 @@ const RunReportForm: React.FC = () => {
       case 'java.util.Date':
         return (
           <div className={styles.runReportInnerDivElement}>
-            <DatePicker 
+            <DatePicker
               datePickerType="single"
               name={parameter.name}
               onChange={([date]) => handleOnDateChange(parameter.name, date)}
               dateFormat='Y-m-d'
               className={styles.datePicker}
             >
-              <DatePickerInput 
+              <DatePickerInput
                 id={parameter.name}
                 name={parameter.name}
                 labelText={parameter.label}
@@ -135,7 +138,7 @@ const RunReportForm: React.FC = () => {
       case 'java.lang.Integer':
         return (
           <div className={styles.runReportInnerDivElement}>
-            <TextInput 
+            <TextInput
               id={parameter.name}
               name={parameter.name}
               labelText={parameter.label}
@@ -151,7 +154,7 @@ const RunReportForm: React.FC = () => {
             <Select
               id={parameter.name}
               name={parameter.name}
-              labelText={parameter.label} 
+              labelText={parameter.label}
               className={styles.basicInputElement}
               onChange={e => handleOnChange(e)}
               value={reportParameters[parameter.name] ?? ''}
@@ -202,9 +205,14 @@ const RunReportForm: React.FC = () => {
     setReportParameters((state) => ({...state, [fieldName]: date}));
   }
 
-  const handleRunReportButtonClick = useCallback(async (reportDefinitionUuid, renderModeUuid, reportParameters) => {
-    runReport(reportDefinitionUuid, renderModeUuid, reportParameters)
+  const handleSubmit = useCallback(event => {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+
+    runReport(reportUuid, renderModeUuid, reportParameters)
       .then(() => {
+        setIsSubmitting(false);
         clearForm();
         setTimeout(() => mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`), 500);
         showToast({
@@ -215,6 +223,7 @@ const RunReportForm: React.FC = () => {
         });
       })
       .catch((error) => {
+        setIsSubmitting(false);
         showToast({
           critical: true,
           kind: 'error',
@@ -222,13 +231,13 @@ const RunReportForm: React.FC = () => {
           description: t('reportRunningErrorMsg', 'Error while running the report'),
         });
       })
-  }, []);
+  }, [reportUuid, renderModeUuid, reportParameters]);
 
   function renderCancelButton(row) {
     if (isCurrentUserTheSameAsReportRequestedByUser(row.id) || isSystemDeveloperUser()) {
       return (
         <div>
-          <Button 
+          <Button
             kind="ghost"
             onClick={() => launchCancelReportDialog(row.id)}
             className={styles.cancelActionButton}
@@ -249,12 +258,12 @@ const RunReportForm: React.FC = () => {
   };
 
   return (
-    <div className={styles.desktopRunReport}>
+    <Form className={styles.desktopRunReport} onSubmit={handleSubmit}>
       <div className={styles.runReportInnerDivElement}>
-        <Select 
-          id="select-report" 
-          className={styles.basicInputElement} 
-          labelText={t('selectReportLabel', 'Report')} 
+        <Select
+          id="select-report"
+          className={styles.basicInputElement}
+          labelText={t('selectReportLabel', 'Report')}
           onChange={e => {
             setReportUuid(e.target.value);
             setRenderModeUuid('');
@@ -283,9 +292,9 @@ const RunReportForm: React.FC = () => {
         }
       </div>
       <div className={styles.outputFormatDiv}>
-        <Select 
-          id="output-format-select" 
-          className={styles.basicInputElement} 
+        <Select
+          id="output-format-select"
+          className={styles.basicInputElement}
           labelText={t('outputFormat', 'Output format')}
           onChange={e => setRenderModeUuid(e.target.value)}
           value={renderModeUuid}
@@ -340,7 +349,7 @@ const RunReportForm: React.FC = () => {
             )
           }
         </DataTable>
-        <Pagination 
+        <Pagination
           backwardText="Previous page"
           forwardText="Next page"
           page={currentPage}
@@ -361,25 +370,26 @@ const RunReportForm: React.FC = () => {
       </div>
       <div className={styles.buttonsDiv}>
         <ButtonSet className={styles.buttonsGroup}>
-          <Button 
-            onClick={closeOverlay} 
-            kind="secondary" 
+          <Button
+            onClick={closeOverlay}
+            kind="secondary"
             size="xl"
             className={styles.reportButton}
           >
             {t('cancel', 'Cancel')}
           </Button>
           <Button
-            disabled={!isFormValid}
-            onClick={() => handleRunReportButtonClick(reportUuid, renderModeUuid, reportParameters)}
+            disabled={!isFormValid || isSubmitting}
             size="xl"
             className={styles.reportButton}
+            kind="primary"
+            type="submit"
           >
             {t('run', 'Run')}
           </Button>
         </ButtonSet>
       </div>
-    </div>
+    </Form>
   );
 };
 

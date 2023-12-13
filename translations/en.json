@@ -39,7 +39,6 @@
   "save": "Save",
   "cancel": "Cancel",
   "selectReport": "Select report",
-  "queuedOrRunning": "Queued or Running",
   "date": "Date",
   "cancelReportModalText": "Are you sure you want to cancel this report?",
   "canceling": "Canceling",
@@ -102,5 +101,6 @@
   "dayOfWeek_friday": "Friday",
   "dayOfWeek_saturday": "Saturday",
   "on": "on",
-  "at": "at"
+  "at": "at",
+  "queued": "Queued"
 }

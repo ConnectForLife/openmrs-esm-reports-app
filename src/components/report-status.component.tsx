@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from "react-i18next";
-import { CheckmarkFilled, CheckmarkOutline, CloseFilled } from '@carbon/react/icons';
+import { CheckmarkFilled, CheckmarkOutline, CloseFilled, Queued } from '@carbon/react/icons';
 import { Loading } from "@carbon/react";
 import styles from './reports.scss';
-import { COMPLETED, FAILED, PROCESSING, SAVED, SCHEDULED, SCHEDULE_COMPLETED } from './report-statuses-constants';
+import { COMPLETED, FAILED, PROCESSING, SAVED, SCHEDULED, SCHEDULE_COMPLETED, REQUESTED } from './report-statuses-constants';
 
 interface ReportStatusProps {
   status: string;
@@ -38,14 +38,20 @@ const ReportStatus: React.FC<ReportStatusProps> = ({ status }) => {
         </>
       }
       {status === SCHEDULED &&
-      <>
-        <span className={styles.scheduledStatusText}>{t("scheduled", "Scheduled")}</span>
-      </>
+        <>
+          <span className={styles.scheduledStatusText}>{t("scheduled", "Scheduled")}</span>
+        </>
       }
       {status === SCHEDULE_COMPLETED &&
-      <>
-        <span className={styles.scheduleCompletedStatusText}>{t("scheduleCompleted", "Schedule completed")}</span>
-      </>
+        <>
+          <span className={styles.scheduleCompletedStatusText}>{t("scheduleCompleted", "Schedule completed")}</span>
+        </>
+      }
+      {status === REQUESTED &&
+        <>
+          <Queued size={16} className={`${styles.statusIcon}`} />
+          {t('queued', 'Queued')}
+        </>
       }
     </>
   );

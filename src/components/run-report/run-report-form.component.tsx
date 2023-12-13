@@ -1,18 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import styles from "./run-report-form.scss";
-import { getCurrentSession, getLocations, getReportDefinitions, getReportDesigns, getReports, runReport } from "../reports.resource";
+import { getLocations, getReportDefinitions, getReportDesigns, runReport } from "../reports.resource";
 import { ReportDesign } from '../../types/report-design';
 import { closeOverlay } from '../../hooks/useOverlay';
 import {
-  TableContainer,
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHead,
-  DataTable,
   Button,
   ButtonSet,
   Select,
@@ -20,12 +12,10 @@ import {
   TextInput,
   DatePicker,
   DatePickerInput,
-  Pagination,
   Form
 } from "@carbon/react";
-import { Session, isDesktop, showModal, showToast, useLayoutType, usePagination } from '@openmrs/esm-framework';
+import { showToast, useLayoutType } from '@openmrs/esm-framework';
 import { mutate } from 'swr';
-import { DEFAULT_PAGE_SIZES } from '../pagination-constants';
 
 const RunReportForm: React.FC = () => {
   const { t } = useTranslation();
@@ -36,19 +26,7 @@ const RunReportForm: React.FC = () => {
   const [reportParameters, setReportParameters] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const session = await getCurrentSession();
-        setCurrentSession(session);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-    fetchData();
-  }, []);
+  const isTablet = useLayoutType() === 'tablet';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,34 +62,6 @@ const RunReportForm: React.FC = () => {
 
   const { reportDefinitions } = getReportDefinitions();
   const { locations } = getLocations();
-  const runningReports = getReports('processing');
-  const tableRows = runningReports ? runningReports.data : [];
-  const [pageSize, setPageSize] = useState(5);
-  const { currentPage, results, goTo } = usePagination(tableRows, pageSize);
-  const layout = useLayoutType();
-
-  const tableHeaders = [
-    { key: 'reportName', header: t('reportName', 'Report Name') },
-    { key: 'evaluateCompleteDatetime', header: t('date', 'Date')},
-    { key: 'parameters', header: t('parameters', 'Parameters')},
-    { key: 'requestedBy', header: t('requestedBy', 'Requested by')},
-    { key: 'requestedOn', header: t('requestedOn', 'Requested on')},
-    { key: 'actions', header: t('actions', 'Actions')}
-  ]
-
-  function isCurrentUserTheSameAsReportRequestedByUser(reportRequestUuid: string) {
-    const reportRequest = tableRows.find(tableRow => tableRow.id === reportRequestUuid);
-    const requestedByUserUuid = reportRequest?.requestedByUserUuid;
-    const currentUserUuid = currentSession?.user.uuid;
-
-    return requestedByUserUuid === currentUserUuid;
-  }
-
-  function isSystemDeveloperUser() {
-    const systemDeveloperRoleName = 'System Developer';
-
-    return currentSession?.user?.roles.map(role => role.display).includes(systemDeveloperRoleName);
-  }
 
   function renderParameterElementBasedOnType(parameter: any) {
     switch(parameter.type) {
@@ -226,30 +176,6 @@ const RunReportForm: React.FC = () => {
       })
   }, [reportUuid, renderModeUuid, reportParameters]);
 
-  function renderCancelButton(row) {
-    if (isCurrentUserTheSameAsReportRequestedByUser(row.id) || isSystemDeveloperUser()) {
-      return (
-        <div>
-          <Button
-            kind="ghost"
-            onClick={() => launchCancelReportDialog(row.id)}
-            className={styles.cancelActionButton}
-          >
-            {t('cancel', 'Cancel')}
-          </Button>
-        </div>
-      )
-    };
-  }
-
-  const launchCancelReportDialog = (reportRequestUuid: string) => {
-    const dispose = showModal('cancel-report-modal', {
-      closeModal: () => dispose(),
-      reportRequestUuid,
-      modalType: 'cancel'
-    });
-  };
-
   return (
     <Form className={styles.desktopRunReport} onSubmit={handleSubmit}>
       <div className={styles.runReportInnerDivElement}>
@@ -302,67 +228,8 @@ const RunReportForm: React.FC = () => {
           }
         </Select>
       </div>
-      <div id="runningOrQueuedReportsDiv">
-        <div className={styles.runningOrQueuedReportsDivTitle}>
-          <h4 className={styles.tableHeader}>{t('queuedOrRunning', 'Queued or Running')}</h4>
-        </div>
-        <DataTable rows={results} headers={tableHeaders}>
-          {
-            ({ rows, headers }) => (
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      {headers.map((header) => (
-                        <TableHeader>
-                          {header.header?.content ?? header.header}
-                        </TableHeader>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row, index) => (
-                      <TableRow>
-                        {row.cells.map((cell) => (
-                          <TableCell className={index % 2 == 0 ? styles.rowCellEven : styles.rowCellOdd}>
-                            {
-                              cell.info.header === 'actions' ? (
-                                <div>
-                                  {renderCancelButton(row)}
-                                </div>
-                              ) : cell.value?.content ?? cell.value
-                            }
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )
-          }
-        </DataTable>
-        <Pagination
-          backwardText="Previous page"
-          forwardText="Next page"
-          page={currentPage}
-          pageSize={pageSize}
-          pageSizes={DEFAULT_PAGE_SIZES}
-          totalItems={tableRows?.length}
-          size={isDesktop(layout) ? 'sm' : 'lg'}
-          onChange={({ pageSize: newPageSize, page: newPage }) => {
-            if (newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-            }
-
-            if (newPage !== currentPage) {
-              goTo(newPage);
-            }
-          }}
-        />
-      </div>
       <div className={styles.buttonsDiv}>
-        <ButtonSet className={styles.buttonsGroup}>
+        <ButtonSet className={isTablet ? styles.tablet : styles.desktop}>
           <Button
             onClick={closeOverlay}
             kind="secondary"

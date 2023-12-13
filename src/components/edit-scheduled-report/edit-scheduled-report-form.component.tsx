@@ -34,6 +34,7 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({ reportDefi
   const [schedule, setSchedule] = useState<string>();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittable, setIsSubmittable] = useState(false);
   const [ignoreChanges, setIgnoreChanges] = useState(true);
 
   useEffect(() => {
@@ -85,10 +86,18 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({ reportDefi
     setIgnoreChanges((prevState) => !prevState);
   };
 
+  const handleCronEditorChange = (cron: string, isValid: boolean) => {
+    setSchedule(isValid ? cron : null);
+  };
+
+  useEffect(() => {
+    setIsSubmittable(!!schedule && !!renderModeUuid);
+  }, [schedule, renderModeUuid]);
+
   return (
     <Form className={styles.desktopEditSchedule} onChange={handleOnChange} onSubmit={handleSubmit}>
       <Stack gap={8} className={styles.container}>
-        <SimpleCronEditor initialCron={initialCron} onChange={setSchedule}/>
+        <SimpleCronEditor initialCron={initialCron} onChange={handleCronEditorChange}/>
         {reportDefinition && reportDefinition.parameters.map(
           parameter => (
             <ReportParameterInput
@@ -125,7 +134,12 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({ reportDefi
           <Button className={styles.button} kind="secondary" onClick={closePanel}>
             {t('cancel', 'Cancel')}
           </Button>
-          <Button className={styles.button} disabled={isSubmitting} kind="primary" type="submit">
+          <Button
+            className={styles.button}
+            disabled={isSubmitting || !isSubmittable}
+            kind="primary"
+            type="submit"
+          >
             {t('save', 'Save')}
           </Button>
         </ButtonSet>

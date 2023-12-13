@@ -18,12 +18,12 @@ import {
   ST_ONCE
 } from "./commons";
 import CronDayOfMonthSelect from "./cron-day-of-month-select.component";
-import styles from "./simple-cron-editor.scss"
+import styles from "./simple-cron-editor.scss";
 import { parseOpenMRSCron } from "../../utils/openmrs-cron-utiils";
 
 interface SimpleCronEditorProps {
   initialCron: string
-  onChange: (cron: string) => void
+  onChange: (cron: string, isValid: boolean) => void
 }
 
 interface EditorState {
@@ -138,7 +138,7 @@ const SimpleCronEditor: React.FC<SimpleCronEditorProps> = ({ initialCron, onChan
   }, [editorState]);
 
   useEffect(() => {
-    onChange(cron);
+    onChange(cron, !invalid);
   }, [cron]);
 
   const buildCron = () => {

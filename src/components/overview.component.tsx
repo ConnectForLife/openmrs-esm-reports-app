@@ -12,7 +12,7 @@ import { TableContainer,
 } from "@carbon/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { downloadMultipleReports, downloadReport, getReports, preserveReport } from "./reports.resource";
+import { downloadMultipleReports, downloadReport, useReports, preserveReport } from "./reports.resource";
 import { userHasAccess, useSession } from "@openmrs/esm-framework";
 import { Play,
   Calendar,
@@ -22,7 +22,7 @@ import { Play,
 } from '@carbon/react/icons';
 import styles from './reports.scss';
 import { ExtensionSlot, isDesktop, showModal, showToast, useLayoutType, usePagination, navigate } from "@openmrs/esm-framework";
-import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
+import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
 import { launchOverlay } from "../hooks/useOverlay";
 import RunReportForm from "./run-report/run-report-form.component";
 import Overlay from "./overlay.component";
@@ -53,11 +53,12 @@ const OverviewComponent: React.FC = () => {
     { key: 'actions', header: t('actions', 'Actions') }
   ];
 
-  const ranReports = getReports('ran');
-  const extractedData = ranReports ? ranReports.data : [];
-
+  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE_NUMBER);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const { currentPage, results, goTo } = usePagination(extractedData, pageSize);
+
+  const ranReportsResult = useReports('ran', currentPage, pageSize);
+  const reports = ranReportsResult ? ranReportsResult.data : [];
+  
   const layout = useLayoutType();
 
   function getReportStatus(row) {
@@ -65,7 +66,7 @@ const OverviewComponent: React.FC = () => {
   }
 
   function isCurrentUserTheSameAsReportRequestedByUser(reportRequestUuid: string) {
-    const report = extractedData.find(tableRow => tableRow.id === reportRequestUuid);
+    const report = reports.find(tableRow => tableRow.id === reportRequestUuid);
     const requestedByUserUuid = report?.requestedByUserUuid;
     const currentUserUuid = currentSession?.user.uuid;
 
@@ -250,7 +251,7 @@ const OverviewComponent: React.FC = () => {
         </Button>
       </div>
       </div>
-      <DataTable rows={results} headers={tableHeaders} isSortable>
+      <DataTable rows={reports} headers={tableHeaders} isSortable>
         {
           ({ rows, headers }) => (
             <TableContainer>
@@ -316,24 +317,25 @@ const OverviewComponent: React.FC = () => {
           )
         }
       </DataTable>
-      <Pagination
-        backwardText={t('previousPage', 'Previous page')}
-        forwardText={t('nextPage', 'Next page')}
-        page={currentPage}
-        pageSize={pageSize}
-        pageSizes={DEFAULT_PAGE_SIZES}
-        totalItems={extractedData?.length}
-        size={isDesktop(layout) ? 'sm' : 'lg'}
-        onChange={({ pageSize: newPageSize, page: newPage }) => {
-          if (newPageSize !== pageSize) {
-            setPageSize(newPageSize);
-          }
+      {reports.length > 0 ? (
+        <Pagination
+          backwardText={t('previousPage', 'Previous page')}
+          forwardText={t('nextPage', 'Next page')}
+          page={currentPage}
+          pageSize={pageSize}
+          pageSizes={DEFAULT_PAGE_SIZES}
+          totalItems={ranReportsResult.totalCount}
+          size={isDesktop(layout) ? 'sm' : 'lg'}
+          onChange={({ pageSize: newPageSize, page: newPage }) => {
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
 
-          if (newPage !== currentPage) {
-            goTo(newPage);
-          }
-        }}
-      />
+            if (newPage !== currentPage) {
+              setCurrentPage(newPage);
+            }
+          }}
+        />) : null}
     </div>
   );
 };

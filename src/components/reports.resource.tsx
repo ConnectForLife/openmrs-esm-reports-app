@@ -52,19 +52,21 @@ export function getLocations() {
   };
 }
 
-export function getReports(statusesGroup: string, sortBy?: string): any {
-  const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest?statusesGroup=${statusesGroup}` + (sortBy ? `&sortBy=${sortBy}` : '');
+export function useReports(statusesGroup: string, pageNumber: number, pageSize: number, sortBy?: string): any {
+  const reportsUrl = `/ws/rest/v1/reportingrest/reportRequest?statusesGroup=${statusesGroup}&startIndex=${pageNumber}&limit=${pageSize}&totalCount=true` + (sortBy ? `&sortBy=${sortBy}` : '');
 
-  const { data, error, isValidating, mutate } = useSWR<{ data: { results: Array<any> } }, Error>(
+  const { data, error, isValidating, mutate } = useSWR<{ data: { results: Array<any>, totalCount: number } }, Error>(
     reportsUrl,
     openmrsFetch
   );
 
   const reports = data?.data?.results;
+  const totalCount = data?.data?.totalCount;
   const reportsArray: Array<any> = reports ? [].concat(...reports.map((report) => mapReportResults(report))) : [];
 
   return {
     data: reportsArray,
+    totalCount,
     isError: error,
     isValidating: isValidating,
     mutate

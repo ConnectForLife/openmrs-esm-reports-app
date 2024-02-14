@@ -1,35 +1,38 @@
-import { TableContainer,
+import {
+  Button,
+  Checkbox,
+  DataTable,
+  Pagination,
   Table,
-  TableRow,
   TableBody,
   TableCell,
-  TableHeader,
+  TableContainer,
   TableHead,
-  DataTable,
-  Button,
-  Pagination,
-  Checkbox
+  TableHeader,
+  TableRow
 } from "@carbon/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { downloadMultipleReports, downloadReport, useReports, preserveReport } from "./reports.resource";
-import { userHasAccess, useSession } from "@openmrs/esm-framework";
-import { Play,
-  Calendar,
-  Download,
-  Save,
-  TrashCan
-} from '@carbon/react/icons';
+import { downloadMultipleReports, downloadReport, preserveReport, useReports } from "./reports.resource";
+import {
+  ExtensionSlot,
+  isDesktop,
+  navigate,
+  showModal,
+  showToast,
+  useLayoutType,
+  userHasAccess,
+  useSession
+} from "@openmrs/esm-framework";
+import { Calendar, Download, Play, Save, TrashCan } from '@carbon/react/icons';
 import styles from './reports.scss';
-import { ExtensionSlot, isDesktop, showModal, showToast, useLayoutType, usePagination, navigate } from "@openmrs/esm-framework";
 import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from "./pagination-constants";
-import { launchOverlay } from "../hooks/useOverlay";
+import { closeOverlay, launchOverlay } from "../hooks/useOverlay";
 import RunReportForm from "./run-report/run-report-form.component";
 import Overlay from "./overlay.component";
 import ReportStatus from "./report-status.component";
 import { COMPLETED, SAVED } from "./report-statuses-constants";
 import ReportOverviewButton from "./report-overview-button.component";
-import { mutate } from 'swr';
 import { PRIVILEGE_SYSTEM_DEVELOPER } from "../constants";
 
 const OverviewComponent: React.FC = () => {
@@ -56,9 +59,8 @@ const OverviewComponent: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE_NUMBER);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const ranReportsResult = useReports('ran', currentPage, pageSize);
-  const reports = ranReportsResult ? ranReportsResult.data : [];
-  
+  const { reports, reportsTotalCount, mutateReports } = useReports('ran', currentPage, pageSize);
+
   const layout = useLayoutType();
 
   function getReportStatus(row) {
@@ -111,7 +113,7 @@ const OverviewComponent: React.FC = () => {
       if (isChecked && !prevState.includes(reportUuid)) {
         return [...prevState, reportUuid];
       } else {
-        return prevState.filter(checkedReportUuid => checkedReportUuid !== reportUuid); 
+        return prevState.filter(checkedReportUuid => checkedReportUuid !== reportUuid);
       }
     });
   }
@@ -119,7 +121,7 @@ const OverviewComponent: React.FC = () => {
   const handlePreserveReport = useCallback(async (reportRequestUuid: string) => {
     preserveReport(reportRequestUuid)
       .then(() => {
-        mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`);
+        mutateReports();
         showToast({
           critical: true,
           kind: 'success',
@@ -139,7 +141,10 @@ const OverviewComponent: React.FC = () => {
 
   const launchDeleteReportDialog = (reportRequestUuid: string) => {
     const dispose = showModal('cancel-report-modal', {
-      closeModal: () => dispose(),
+      closeModal: () => {
+        dispose();
+        mutateReports();
+      },
       reportRequestUuid,
       modalType: 'delete'
     });
@@ -232,7 +237,10 @@ const OverviewComponent: React.FC = () => {
           onClick={() => {
             launchOverlay(
               t('runReport', 'Run Report'),
-              <RunReportForm />
+              <RunReportForm closePanel={() => {
+                closeOverlay();
+                mutateReports();
+              }} />
             );
           }}
           className={styles.mainActionButton}
@@ -324,7 +332,7 @@ const OverviewComponent: React.FC = () => {
           page={currentPage}
           pageSize={pageSize}
           pageSizes={DEFAULT_PAGE_SIZES}
-          totalItems={ranReportsResult.totalCount}
+          totalItems={reportsTotalCount}
           size={isDesktop(layout) ? 'sm' : 'lg'}
           onChange={({ pageSize: newPageSize, page: newPage }) => {
             if (newPageSize !== pageSize) {

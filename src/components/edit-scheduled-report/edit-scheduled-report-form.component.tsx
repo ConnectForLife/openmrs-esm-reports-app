@@ -67,7 +67,7 @@ const EditScheduledReportForm: React.FC<EditScheduledReportForm> = ({ reportDefi
         });
         closePanel();
         setIsSubmitting(false);
-      }, (error) => {
+      }, error => {
         console.error(error);
         showToast({
           critical: true,

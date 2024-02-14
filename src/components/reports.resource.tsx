@@ -27,11 +27,11 @@ interface ScheduledReportModel {
 }
 
 export interface RunReportRequest {
-  existingRequestUuid: string|undefined,
+  existingRequestUuid?: string|undefined,
   reportDefinitionUuid: string,
   renderModeUuid: string,
   reportParameters: any,
-  schedule: string|undefined
+  schedule?: string|undefined
 }
 
 export async function getCurrentSession(): Promise<Session> {
@@ -65,11 +65,11 @@ export function useReports(statusesGroup: string, pageNumber: number, pageSize: 
   const reportsArray: Array<any> = reports ? [].concat(...reports.map((report) => mapReportResults(report))) : [];
 
   return {
-    data: reportsArray,
-    totalCount,
+    reports: reportsArray,
+    reportsTotalCount: totalCount,
     isError: error,
     isValidating: isValidating,
-    mutate
+    mutateReports: mutate
   };
 }
 
@@ -171,22 +171,6 @@ function mapDesignResults(design: any): ReportDesign {
     name: design.name,
     uuid: design.uuid
   };
-}
-
-export async function runReport(reportDefinitionUuid: string, renderModeUuid: string, reportParameters: any) {
-  const apiUrl = `/ws/rest/v1/reportingrest/runReport`;
-
-  return openmrsFetch(apiUrl, {
-    body: {
-      reportDefinitionUuid: reportDefinitionUuid,
-      renderModeUuid: renderModeUuid,
-      reportParameters: reportParameters
-    },
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
 }
 
 export function runReportObservable(payload: RunReportRequest, abortController: AbortController): Observable<FetchResponse<any>> {

@@ -1,23 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from "react-i18next";
 import styles from "./run-report-form.scss";
-import { getLocations, getReportDefinitions, getReportDesigns, runReport } from "../reports.resource";
+import {
+  getLocations,
+  getReportDefinitions,
+  getReportDesigns,
+  runReportObservable,
+  RunReportRequest
+} from "../reports.resource";
 import { ReportDesign } from '../../types/report-design';
 import { closeOverlay } from '../../hooks/useOverlay';
-import {
-  Button,
-  ButtonSet,
-  Select,
-  SelectItem,
-  TextInput,
-  DatePicker,
-  DatePickerInput,
-  Form
-} from "@carbon/react";
+import { Button, ButtonSet, DatePicker, DatePickerInput, Form, Select, SelectItem, TextInput } from "@carbon/react";
 import { showToast, useLayoutType } from '@openmrs/esm-framework';
-import { mutate } from 'swr';
+import { first } from "rxjs/operators";
 
-const RunReportForm: React.FC = () => {
+interface RunReportForm {
+  closePanel: () => void
+}
+
+const RunReportForm: React.FC<RunReportForm> = ({ closePanel }) => {
   const { t } = useTranslation();
   const [reportDesigns, setReportDesigns] = useState<Array<ReportDesign>>([]);
   const [reportUuid, setReportUuid] = useState('');
@@ -153,27 +154,36 @@ const RunReportForm: React.FC = () => {
 
     setIsSubmitting(true);
 
-    runReport(reportUuid, renderModeUuid, reportParameters)
-      .then(() => {
-        setIsSubmitting(false);
-        closeOverlay();
-        setTimeout(() => mutate(`/ws/rest/v1/reportingrest/reportRequest?statusesGroup=ran`), 500);
+    const runReportRequest: RunReportRequest = {
+      reportDefinitionUuid: reportUuid,
+      renderModeUuid: renderModeUuid,
+      reportParameters: reportParameters
+    };
+
+    const abortController = new AbortController();
+    runReportObservable(runReportRequest, abortController)
+      .pipe(first()).subscribe(() => {
+      // delayed handling because runReport returns before new reports is accessible via GET
+      setTimeout(() => {
         showToast({
           critical: true,
           kind: 'success',
           title: t('reportRunning', 'Report running'),
           description: t('reportRanSuccessfullyMsg', 'Report ran successfully'),
         });
-      })
-      .catch((error) => {
+        closePanel();
         setIsSubmitting(false);
-        showToast({
-          critical: true,
-          kind: 'error',
-          title: t('reportRunningErrorMsg', 'Error while running the report'),
-          description: t('reportRunningErrorMsg', 'Error while running the report'),
-        });
-      })
+      }, 500);
+    }, error => {
+      console.error(error);
+      showToast({
+        critical: true,
+        kind: 'error',
+        title: t('reportRunningErrorMsg', 'Error while running the report'),
+        description: t('reportRunningErrorMsg', 'Error while running the report'),
+      });
+      setIsSubmitting(false);
+    });
   }, [reportUuid, renderModeUuid, reportParameters]);
 
   return (

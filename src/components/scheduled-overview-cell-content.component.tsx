@@ -53,7 +53,7 @@ const ScheduledOverviewCellContent: React.FC<ScheduledOverviewCellContentProps> 
               }}
             />
             <ReportOverviewButton
-              shouldBeDisplayed={userHasAccess(PRIVILEGE_SYSTEM_DEVELOPER, session.user)}
+              shouldBeDisplayed={!!cell.value.reportRequestUuid && userHasAccess(PRIVILEGE_SYSTEM_DEVELOPER, session.user)}
               label={t('deleteSchedule', 'Delete Schedule')}
               icon={() => <TrashCan size={16} className={styles.actionButtonIcon}/>}
               reportRequestUuid={cell.value.reportRequestUuid}

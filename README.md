@@ -1,3 +1,7 @@
+# DEPRECATED
+
+Included in https://github.com/openmrs/openmrs-esm-admin-tools
+
 ![Node.js CI](https://github.com/openmrs/openmrs-esm-reports-app/workflows/Node.js%20CI/badge.svg)
 
 # OpenMRS ESM Reports App
